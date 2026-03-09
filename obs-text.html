@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OBS Text Overlay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            overflow: hidden;
+        }
+        #text {
+            white-space: pre-line;
+            text-align: center;
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="text"></div>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+
+        // Text content (required) - use \n for line breaks
+        const text = params.get('t') || params.get('text') || 'Hello World';
+
+        // Styling params with defaults
+        const fontSize   = params.get('fs')   || params.get('fontsize')   || '48';
+        const fontFamily  = params.get('ff')   || params.get('font')      || 'Arial, sans-serif';
+        const color       = params.get('c')    || params.get('color')     || '#ffffff';
+        const bg          = params.get('bg')   || params.get('background')|| 'transparent';
+        const fontWeight  = params.get('fw')   || params.get('weight')    || 'bold';
+        const shadow      = params.get('s')    || params.get('shadow');
+        const align       = params.get('a')    || params.get('align')     || 'center';
+        const outline     = params.get('o')    || params.get('outline');
+        const padding     = params.get('p')    || params.get('padding')   || '10';
+        const letterSpace = params.get('ls')   || params.get('spacing');
+        const lineHeight  = params.get('lh')   || params.get('lineheight');
+        const uppercase   = params.has('upper');
+        const italic      = params.has('italic');
+
+        // Apply styles
+        document.body.style.backgroundColor = bg.startsWith('#') ? bg : (bg === 'transparent' ? bg : '#' + bg);
+
+        const el = document.getElementById('text');
+        el.textContent = text.replace(/\\n/g, '\n');
+        el.style.fontSize = fontSize + 'px';
+        el.style.fontFamily = fontFamily;
+        el.style.color = color.startsWith('#') ? color : '#' + color;
+        el.style.fontWeight = fontWeight;
+        el.style.textAlign = align;
+
+        if (shadow) {
+            el.style.textShadow = shadow;
+        } else {
+            // Default subtle shadow for readability
+            el.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
+        }
+
+        if (outline) {
+            const oc = outline.startsWith('#') ? outline : '#' + outline;
+            el.style.webkitTextStroke = '1px ' + oc;
+        }
+
+        if (padding) {
+            el.style.padding = padding + 'px';
+        }
+
+        if (letterSpace) {
+            el.style.letterSpacing = letterSpace + 'px';
+        }
+
+        if (lineHeight) {
+            el.style.lineHeight = lineHeight;
+        }
+
+        if (uppercase) {
+            el.style.textTransform = 'uppercase';
+        }
+
+        if (italic) {
+            el.style.fontStyle = 'italic';
+        }
+
+        // Load Google Font if specified
+        if (params.get('gf') || params.get('googlefont')) {
+            const gf = params.get('gf') || params.get('googlefont');
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(gf) + ':wght@400;700;900&display=swap';
+            document.head.appendChild(link);
+            el.style.fontFamily = '"' + gf + '", ' + fontFamily;
+        }
+    </script>
+</body>
+</html>
