@@ -30,8 +30,10 @@
     <script>
         const params = new URLSearchParams(window.location.search);
 
-        // Text content (required) - use \n for line breaks
-        const text = params.get('t') || params.get('text') || 'Hello World';
+        // Gist mode params
+        const gistId     = params.get('gist');
+        const gistFile   = params.get('gf_name') || null; // specific file in multi-file gist
+        const pollInterval = parseInt(params.get('poll') || '5', 10) * 1000;
 
         // Styling params with defaults
         const fontSize   = params.get('fs')   || params.get('fontsize')   || '48';
@@ -52,53 +54,90 @@
         document.body.style.backgroundColor = bg.startsWith('#') ? bg : (bg === 'transparent' ? bg : '#' + bg);
 
         const el = document.getElementById('text');
-        el.textContent = text.replace(/\\n/g, '\n');
-        el.style.fontSize = fontSize + 'px';
-        el.style.fontFamily = fontFamily;
-        el.style.color = color.startsWith('#') ? color : '#' + color;
-        el.style.fontWeight = fontWeight;
-        el.style.textAlign = align;
 
-        if (shadow) {
-            el.style.textShadow = shadow;
-        } else {
-            // Default subtle shadow for readability
-            el.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
+        function applyStyles() {
+            el.style.fontSize = fontSize + 'px';
+            el.style.fontFamily = fontFamily;
+            el.style.color = color.startsWith('#') ? color : '#' + color;
+            el.style.fontWeight = fontWeight;
+            el.style.textAlign = align;
+
+            if (shadow) {
+                el.style.textShadow = shadow;
+            } else {
+                el.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
+            }
+
+            if (outline) {
+                const oc = outline.startsWith('#') ? outline : '#' + outline;
+                el.style.webkitTextStroke = '1px ' + oc;
+            }
+
+            if (padding) {
+                el.style.padding = padding + 'px';
+            }
+
+            if (letterSpace) {
+                el.style.letterSpacing = letterSpace + 'px';
+            }
+
+            if (lineHeight) {
+                el.style.lineHeight = lineHeight;
+            }
+
+            if (uppercase) {
+                el.style.textTransform = 'uppercase';
+            }
+
+            if (italic) {
+                el.style.fontStyle = 'italic';
+            }
         }
 
-        if (outline) {
-            const oc = outline.startsWith('#') ? outline : '#' + outline;
-            el.style.webkitTextStroke = '1px ' + oc;
-        }
-
-        if (padding) {
-            el.style.padding = padding + 'px';
-        }
-
-        if (letterSpace) {
-            el.style.letterSpacing = letterSpace + 'px';
-        }
-
-        if (lineHeight) {
-            el.style.lineHeight = lineHeight;
-        }
-
-        if (uppercase) {
-            el.style.textTransform = 'uppercase';
-        }
-
-        if (italic) {
-            el.style.fontStyle = 'italic';
+        function setText(text) {
+            el.textContent = text.replace(/\\n/g, '\n');
         }
 
         // Load Google Font if specified
-        if (params.get('gf') || params.get('googlefont')) {
-            const gf = params.get('gf') || params.get('googlefont');
+        const googleFont = params.get('gf') || params.get('googlefont');
+        if (googleFont) {
             const link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(gf) + ':wght@400;700;900&display=swap';
+            link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(googleFont) + ':wght@400;700;900&display=swap';
             document.head.appendChild(link);
-            el.style.fontFamily = '"' + gf + '", ' + fontFamily;
+            el.style.fontFamily = '"' + googleFont + '", ' + fontFamily;
+        }
+
+        applyStyles();
+
+        if (gistId) {
+            // Gist mode: fetch text from GitHub Gist with polling
+            async function fetchGist() {
+                try {
+                    const res = await fetch('https://api.github.com/gists/' + gistId + '?_=' + Date.now());
+                    const data = await res.json();
+                    const files = data.files;
+                    const file = gistFile ? files[gistFile] : files[Object.keys(files)[0]];
+                    const content = file.content;
+
+                    // Support JSON format {"text": "..."} or plain text
+                    try {
+                        const json = JSON.parse(content);
+                        setText(json.text || json.t || json.message || content);
+                    } catch {
+                        setText(content.trim());
+                    }
+                } catch (e) {
+                    console.error('Error fetching gist:', e);
+                }
+            }
+
+            fetchGist();
+            setInterval(fetchGist, pollInterval);
+        } else {
+            // Static mode: text from URL param
+            const text = params.get('t') || params.get('text') || 'Hello World';
+            setText(text);
         }
     </script>
 </body>
