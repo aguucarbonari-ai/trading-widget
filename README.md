@@ -7,7 +7,7 @@ Overlay de texto para usar como fuente "Browser" en OBS. Soporta dos modos:
 - **Modo estático:** todo se configura desde la URL.
 - **Modo Gist (dinámico):** texto y estilos se leen de un GitHub Gist JSON con auto-refresh. Para cambiar cualquier cosa solo editás el Gist, sin tocar OBS ni hacer redeploy.
 
-### Modo Gist (recomendado)
+### Paso a paso
 
 #### Setup
 
@@ -79,14 +79,6 @@ Solo necesitás incluir los campos que querés cambiar. Los que no estén usan e
 | `gist` | ID del GitHub Gist | - (requerido) |
 | `gf_name` | Nombre del archivo en el Gist (para multi-archivo) | primer archivo |
 | `poll` | Intervalo de polling en segundos | `5` |
-
-### Modo estático (todo en la URL)
-
-```
-https://aguucarbonari-ai.github.io/trading-widget/obs-text.html?t=EN VIVO&fs=64&c=ffffff
-```
-
-Los parámetros de URL usan las mismas claves que el JSON.
 
 ## ticker-tape.html - Cinta de cotizaciones
 
