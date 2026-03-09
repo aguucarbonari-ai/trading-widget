@@ -18,7 +18,17 @@ Overlay de texto para usar como fuente "Browser" en OBS. Soporta dos modos:
    https://aguucarbonari-ai.github.io/trading-widget/obs-text.html?gist=115beaf8fb18659a9d920ffdbc6d81f0
    ```
 
-3. Para cambiar texto o estilos: editar el Gist JSON.
+3. Para cambiar texto o estilos:
+
+   **Paso 1:** Ir al [Gist](https://gist.github.com/aguucarbonari-ai/115beaf8fb18659a9d920ffdbc6d81f0) y hacer click en **Edit**:
+
+   ![Hacer click en Edit](docs/gist-edit-button.png)
+
+   **Paso 2:** Modificar los valores del JSON (texto, colores, tamaño, etc.) y hacer click en **Update secret gist**:
+
+   ![Editar y hacer click en Update secret gist](docs/gist-update.png)
+
+   El overlay en OBS se actualiza solo en ~5 segundos.
 
 #### Formato del JSON
 
