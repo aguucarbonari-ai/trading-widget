@@ -30,88 +30,73 @@
     <script>
         const params = new URLSearchParams(window.location.search);
 
-        // Gist mode params
-        const gistId     = params.get('gist');
-        const gistFile   = params.get('gf_name') || null; // specific file in multi-file gist
+        const gistId = params.get('gist');
+        const gistFile = params.get('gf_name') || null;
         const pollInterval = parseInt(params.get('poll') || '5', 10) * 1000;
 
-        // Styling params with defaults
-        const fontSize   = params.get('fs')   || params.get('fontsize')   || '48';
-        const fontFamily  = params.get('ff')   || params.get('font')      || 'Arial, sans-serif';
-        const color       = params.get('c')    || params.get('color')     || '#ffffff';
-        const bg          = params.get('bg')   || params.get('background')|| 'transparent';
-        const fontWeight  = params.get('fw')   || params.get('weight')    || 'bold';
-        const shadow      = params.get('s')    || params.get('shadow');
-        const align       = params.get('a')    || params.get('align')     || 'center';
-        const outline     = params.get('o')    || params.get('outline');
-        const padding     = params.get('p')    || params.get('padding')   || '10';
-        const letterSpace = params.get('ls')   || params.get('spacing');
-        const lineHeight  = params.get('lh')   || params.get('lineheight');
-        const uppercase   = params.has('upper');
-        const italic      = params.has('italic');
-
-        // Apply styles
-        document.body.style.backgroundColor = bg.startsWith('#') ? bg : (bg === 'transparent' ? bg : '#' + bg);
+        const DEFAULTS = {
+            text: 'Hello World',
+            fs: '48',
+            ff: 'Arial, sans-serif',
+            c: '#ffffff',
+            bg: 'transparent',
+            fw: 'bold',
+            s: '2px 2px 4px rgba(0,0,0,0.5)',
+            a: 'center',
+            o: '',
+            p: '10',
+            ls: '',
+            lh: '',
+            upper: false,
+            italic: false,
+            gf: ''
+        };
 
         const el = document.getElementById('text');
+        let loadedGoogleFont = '';
 
-        function applyStyles() {
-            el.style.fontSize = fontSize + 'px';
-            el.style.fontFamily = fontFamily;
-            el.style.color = color.startsWith('#') ? color : '#' + color;
-            el.style.fontWeight = fontWeight;
-            el.style.textAlign = align;
-
-            if (shadow) {
-                el.style.textShadow = shadow;
-            } else {
-                el.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
-            }
-
-            if (outline) {
-                const oc = outline.startsWith('#') ? outline : '#' + outline;
-                el.style.webkitTextStroke = '1px ' + oc;
-            }
-
-            if (padding) {
-                el.style.padding = padding + 'px';
-            }
-
-            if (letterSpace) {
-                el.style.letterSpacing = letterSpace + 'px';
-            }
-
-            if (lineHeight) {
-                el.style.lineHeight = lineHeight;
-            }
-
-            if (uppercase) {
-                el.style.textTransform = 'uppercase';
-            }
-
-            if (italic) {
-                el.style.fontStyle = 'italic';
-            }
+        function parseColor(val) {
+            if (!val) return '';
+            return val.startsWith('#') ? val : '#' + val;
         }
 
-        function setText(text) {
-            el.textContent = text.replace(/\\n/g, '\n');
-        }
+        function applyConfig(cfg) {
+            const c = Object.assign({}, DEFAULTS, cfg);
 
-        // Load Google Font if specified
-        const googleFont = params.get('gf') || params.get('googlefont');
-        if (googleFont) {
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(googleFont) + ':wght@400;700;900&display=swap';
-            document.head.appendChild(link);
-            el.style.fontFamily = '"' + googleFont + '", ' + fontFamily;
-        }
+            // Background
+            const bgVal = c.bg === 'transparent' ? 'transparent' : parseColor(c.bg);
+            document.body.style.backgroundColor = bgVal;
 
-        applyStyles();
+            // Text
+            el.textContent = (c.text || c.t || '').replace(/\\n/g, '\n');
+
+            // Google Font
+            if (c.gf && c.gf !== loadedGoogleFont) {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(c.gf) + ':wght@400;700;900&display=swap';
+                document.head.appendChild(link);
+                loadedGoogleFont = c.gf;
+            }
+
+            // Typography
+            el.style.fontSize = c.fs + 'px';
+            el.style.fontFamily = c.gf ? ('"' + c.gf + '", ' + c.ff) : c.ff;
+            el.style.color = parseColor(c.c);
+            el.style.fontWeight = c.fw;
+            el.style.textAlign = c.a;
+
+            // Effects
+            el.style.textShadow = c.s || 'none';
+            el.style.webkitTextStroke = c.o ? ('1px ' + parseColor(c.o)) : '';
+            el.style.padding = c.p ? (c.p + 'px') : '0';
+            el.style.letterSpacing = c.ls ? (c.ls + 'px') : '';
+            el.style.lineHeight = c.lh || '';
+            el.style.textTransform = c.upper ? 'uppercase' : '';
+            el.style.fontStyle = c.italic ? 'italic' : '';
+        }
 
         if (gistId) {
-            // Gist mode: fetch text from GitHub Gist with polling
             async function fetchGist() {
                 try {
                     const res = await fetch('https://api.github.com/gists/' + gistId + '?_=' + Date.now());
@@ -120,12 +105,11 @@
                     const file = gistFile ? files[gistFile] : files[Object.keys(files)[0]];
                     const content = file.content;
 
-                    // Support JSON format {"text": "..."} or plain text
                     try {
                         const json = JSON.parse(content);
-                        setText(json.text || json.t || json.message || content);
+                        applyConfig(json);
                     } catch {
-                        setText(content.trim());
+                        applyConfig({ text: content.trim() });
                     }
                 } catch (e) {
                     console.error('Error fetching gist:', e);
@@ -135,9 +119,24 @@
             fetchGist();
             setInterval(fetchGist, pollInterval);
         } else {
-            // Static mode: text from URL param
-            const text = params.get('t') || params.get('text') || 'Hello World';
-            setText(text);
+            // Static mode: all config from URL params
+            applyConfig({
+                text: params.get('t') || params.get('text') || DEFAULTS.text,
+                fs: params.get('fs') || params.get('fontsize') || DEFAULTS.fs,
+                ff: params.get('ff') || params.get('font') || DEFAULTS.ff,
+                c: params.get('c') || params.get('color') || DEFAULTS.c,
+                bg: params.get('bg') || params.get('background') || DEFAULTS.bg,
+                fw: params.get('fw') || params.get('weight') || DEFAULTS.fw,
+                s: params.get('s') || params.get('shadow') || DEFAULTS.s,
+                a: params.get('a') || params.get('align') || DEFAULTS.a,
+                o: params.get('o') || params.get('outline') || '',
+                p: params.get('p') || params.get('padding') || DEFAULTS.p,
+                ls: params.get('ls') || params.get('spacing') || '',
+                lh: params.get('lh') || params.get('lineheight') || '',
+                upper: params.has('upper'),
+                italic: params.has('italic'),
+                gf: params.get('gf') || params.get('googlefont') || ''
+            });
         }
     </script>
 </body>
