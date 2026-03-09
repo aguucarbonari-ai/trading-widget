@@ -2,10 +2,7 @@
 
 ## obs-text.html - Texto configurable para OBS
 
-Overlay de texto para usar como fuente "Browser" en OBS. Soporta dos modos:
-
-- **Modo estático:** todo se configura desde la URL.
-- **Modo Gist (dinámico):** texto y estilos se leen de un GitHub Gist JSON con auto-refresh. Para cambiar cualquier cosa solo editás el Gist, sin tocar OBS ni hacer redeploy.
+Overlay de texto para OBS que se actualiza editando un JSON en GitHub Gist, sin tocar OBS ni hacer redeploy.
 
 ### Paso a paso
 
