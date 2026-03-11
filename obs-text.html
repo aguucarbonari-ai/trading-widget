@@ -99,14 +99,10 @@
         if (gistId) {
             async function fetchGist() {
                 try {
-                    const res = await fetch('https://api.github.com/gists/' + gistId + '?_=' + Date.now());
+                    const rawUrl = 'https://gist.githubusercontent.com/raw/' + gistId + (gistFile ? '/' + gistFile : '') + '?_=' + Date.now();
+                    const res = await fetch(rawUrl);
                     if (!res.ok) { console.warn('Gist fetch returned', res.status); return; }
-                    const data = await res.json();
-                    const files = data.files;
-                    if (!files) return;
-                    const file = gistFile ? files[gistFile] : files[Object.keys(files)[0]];
-                    if (!file) return;
-                    const content = file.content;
+                    const content = await res.text();
 
                     try {
                         const json = JSON.parse(content);
