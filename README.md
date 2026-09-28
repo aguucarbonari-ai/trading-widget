@@ -54,7 +54,7 @@ Overlay de texto para OBS que se actualiza editando un JSON en GitHub Gist, sin 
 | `text` | Texto a mostrar. Usá `\n` para saltos de línea. | `Hello World` |
 | `fs` | Tamaño de fuente en px | `48` |
 | `ff` | Familia tipográfica | `Arial, sans-serif` |
-| `c` | Color del texto (hex) | `#ffffff` |
+| `c` | Color del texto (hex) | `#232323` |
 | `bg` | Color de fondo (hex o `transparent`) | `transparent` |
 | `fw` | Grosor (`normal`, `bold`, `100`-`900`) | `bold` |
 | `s` | Sombra (CSS text-shadow) | `2px 2px 4px rgba(0,0,0,0.5)` |
