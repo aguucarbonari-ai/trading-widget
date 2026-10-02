@@ -84,3 +84,11 @@ Widget de TradingView con cotizaciones en tiempo real (S&P 500, NASDAQ, BTC, ETH
 ```
 https://aguucarbonari-ai.github.io/trading-widget/ticker-tape.html
 ```
+
+## argentina-time.html - Hora de Argentina
+
+Reloj en formato de 24 horas (`HH:MM:SS`), actualizado cada segundo con la zona horaria de Argentina, independientemente de la zona horaria del equipo. Texto blanco sobre fondo `#232323`, para usar como fuente Browser en OBS.
+
+```
+https://aguucarbonari-ai.github.io/trading-widget/argentina-time.html
+```

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hora de Argentina</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-color: #232323;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+        }
+
+        #clock {
+            font-size: clamp(20px, 16vw, 48px);
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <time id="clock" aria-label="Hora actual en Argentina"></time>
+    <script>
+        const clock = document.getElementById('clock');
+        const formatter = new Intl.DateTimeFormat('es-AR', {
+            timeZone: 'America/Argentina/Buenos_Aires',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hourCycle: 'h23'
+        });
+
+        function updateClock() {
+            const now = new Date();
+            clock.textContent = formatter.format(now);
+            clock.dateTime = now.toISOString();
+            setTimeout(updateClock, 1000 - now.getMilliseconds());
+        }
+
+        updateClock();
+    </script>
+</body>
+</html>
